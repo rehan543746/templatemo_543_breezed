@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel of Fortune Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f7f7f7;
+            margin: 0;
+            flex-direction: row; /* Set layout to row for left-right arrangement */
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            border: 10px solid #333;
+            overflow: hidden;
+            margin-right: 40px; /* Add space between wheel and result */
+        }
+
+        .wheel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#ff0000 0% 15%, #00ff00 15% 30%, #0000ff 30% 45%, #ff00ff 45% 60%, #ffff00 60% 75%, #00ffff 75% 90%, #ff0000 90% 100%);
+            transition: transform 4s ease-out;
+        }
+
+        .wheel .text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .spin-btn, .try-again-btn, .share-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .spin-btn:hover, .try-again-btn:hover, .share-btn:hover {
+            background-color: #218838;
+        }
+
+        .result {
+            display: flex;
+            flex-direction: column; /* Stack the prize name and image vertically */
+            align-items: center; /* Center the content */
+            justify-content: center;
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+        }
+
+        .result img {
+            width: 200px;  /* Adjust the width */
+            height: 200px; /* Adjust the height */
+            margin-top: 20px; /* Add space between text and image */
+        }
+
+        .button-container {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wheel-container">
+        <div class="wheel" id="wheel">
+            <div class="text">Spin Me!</div>
+        </div>
+    </div>
+
+    <div class="button-container">
+        <button class="spin-btn" id="spinBtn" onclick="spinWheel()">Spin the Wheel</button>
+    </div>
+
+    <div class="result" id="result"></div>
+
+    <button class="try-again-btn" id="tryAgainBtn" style="display: none;" onclick="restartGame()">Play Again</button>
+    <button class="share-btn" id="shareBtn" style="display: none;" onclick="shareResult()">Share on WhatsApp</button>
+
+    <script>
+        const wheel = document.getElementById('wheel');
+        const result = document.getElementById('result');
+        const spinBtn = document.getElementById('spinBtn');
+        const tryAgainBtn = document.getElementById('tryAgainBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const prizes = [
+            { name: "iPhone 16 Pro Max", image: "assets/images/iphone.jpg" },       // Replace with your image paths
+            { name: "Laptop", image: "assets/images/laptop.jpg" },                  // Replace with your image paths
+            { name: "Car", image: "assets/images/car.jpg" },                        // Replace with your image paths
+            { name: "Gift Card", image: "assets/images/smartwacth.jpg" },           // Replace with your image paths
+            { name: "Headphones", image: "assets/images/headphone.jpg" },           // Replace with your image paths
+            { name: "Smart Watch", image: "assets/images/smartwacth.jpg" }           // Replace with your image paths
+        ];
+
+        let isSpinning = false;
+        let prize;
+
+        function spinWheel() {
+            if (isSpinning) return; // Prevent spinning while already spinning
+
+            isSpinning = true;
+
+            // Generate a random number for the spin (between 0 and 360 degrees)
+            const randomDegree = Math.floor(Math.random() * 360) + 3600; // Spin 10 times (3600 degrees) + random angle
+
+            // Apply the spin to the wheel
+            wheel.style.transform = `rotate(${randomDegree}deg)`;
+
+            // Disable the spin button after the first spin
+            spinBtn.style.display = 'none';
+
+            // Wait for the animation to finish (4 seconds) and then show the result
+            setTimeout(() => {
+                const prizeIndex = Math.floor((randomDegree % 360) / (360 / prizes.length)); // Calculate which prize
+                prize = prizes[prizeIndex];
+
+                // Display the result with the prize name and image
+                result.innerHTML = `You won: ${prize.name} <img src="${prize.image}" alt="${prize.name}">`;
+
+                // Show the "Share" button
+                shareBtn.style.display = 'inline-block';
+
+                isSpinning = false;
+            }, 4000); // 4 seconds is the duration of the spin animation
+        }
+
+        function shareResult() {
+    const gameLink = "https://www.yourwebsite.com/game"; // Replace with the actual link to your game
+    const message = `I won a ${prize.name} in the Wheel of Fortune game! 🎉🎁 Share with 20 friends to claim your prize! 🎮 Click here to play: ${gameLink}`;
+
+    // URL encode the message to be shared
+    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+    // Redirect user to WhatsApp with the message
+    window.open(url, '_blank');
+}
+
+        function restartGame() {
+            // Reset the game (reload the page to start over)
+            location.reload();
+        }
+    </script>
+
+</body>
+</html>

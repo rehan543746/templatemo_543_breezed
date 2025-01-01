@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoom Out Cursor Effect</title>
+    <style>
+        /* Basic styles for layout */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .section {
+            padding: 40px 0;
+        }
+
+        .section-heading {
+            margin-bottom: 30px;
+        }
+
+        /* Zoom in/out effect on hover */
+        .zoom-image {
+            transition: transform 0.3s ease; /* smooth zoom effect */
+            cursor: zoom-out; /* Show zoom-out cursor */
+        }
+
+        .zoom-image:hover {
+            transform: scale(1.1); /* zoom-in effect when hovering over an image */
+        }
+
+        /* Container for images */
+        .image-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        /* For responsiveness */
+        img {
+            width: 400px;
+            height: 400px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+    <section class="section" id="projects">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="section-heading">
+                        <h6>Paid tasks</h6>
+                        <h2>Some of our tasks.</h2>
+                    </div>
+                </div>
+                <div class="col-lg-9">
+                    <div class="image-container">
+                        <img src="assets/images/wheel img.jpg" class="zoom-image" width="400px" height="400px" alt="Wheel Image">
+                        <img src="assets/images/bomb img.jpg" class="zoom-image" width="400px" height="400px" alt="Bomb Image">
+                        <img src="assets/images/ads image.jpg" class="zoom-image" width="400px" height="400px" alt="Ads Image">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // JavaScript to change cursor style dynamically on hover
+        document.querySelectorAll('.zoom-image').forEach(img => {
+            img.addEventListener('mouseenter', () => {
+                document.body.style.cursor = 'zoom-out';  // Show zoom-out cursor on hover
+            });
+
+            img.addEventListener('mouseleave', () => {
+                document.body.style.cursor = 'default';  // Return to default cursor when not hovering
+            });
+        });
+    </script>
+
+</body>
+</html>
+
