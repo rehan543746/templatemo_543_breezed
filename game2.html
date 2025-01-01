@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bomb in a Box Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 350px;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .box {
+            width: 100px;
+            height: 100px;
+            background-color: #eaee09;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .box:hover {
+            background-color: #ebdc11;
+        }
+
+        /* Bomb explosion animation */
+        .box.explosion {
+            background-color: #f51515;
+            background-image: url('assets/images/bomb.jpg'); /* Path to your bomb image */
+            background-size: cover;
+            color: transparent;
+            border-radius: 8px;
+            animation: explode 1s ease-out ;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        /* Winning animation */
+        .box.win {
+            background-color: #4caf50;
+            animation: winAnimation 1s ease-out forwards;
+        }
+
+        @keyframes winAnimation {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 20px 10px rgba(76, 175, 80, 0.7); }
+        }
+
+        .message {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 20px;
+        }
+
+        .reset-btn, .share-btn {
+            padding: 10px 20px;
+            background-color: #008CBA;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .reset-btn:hover, .share-btn:hover {
+            background-color: #007b8e;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="game-container" id="game-container">
+        <!-- The boxes will be created dynamically -->
+    </div>
+
+    <div class="message" id="message">Choose a box!</div>
+    <div id="points" class="message hidden">You won 500 points!</div>
+    <button class="reset-btn hidden" id="reset-btn" onclick="startGame()">Try Again</button>
+    <button class="share-btn hidden" id="share-btn" onclick="sharePrize()">Share with 20 users on WhatsApp</button>
+
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const message = document.getElementById('message');
+        const pointsMessage = document.getElementById('points');
+        const resetBtn = document.getElementById('reset-btn');
+        const shareBtn = document.getElementById('share-btn');
+
+        const totalBoxes = 9; // Number of boxes
+        const totalBombs = 1; // Only one bomb per round
+        let bombIndices = []; // Will store bomb indices dynamically
+        let clickedSafeBoxes = 0; // To track how many safe boxes have been clicked
+        let gameOverFlag = false; // To track if the game is over
+        let prizeWon = ""; // Track the prize won
+
+        // Start the game
+        function startGame() {
+            message.textContent = "Choose a box!";
+            pointsMessage.classList.add('hidden'); // Hide the points message
+            resetBtn.classList.add('hidden');
+            shareBtn.classList.add('hidden'); // Hide the share button at the start
+            gameOverFlag = false; // Reset the game over flag
+            clickedSafeBoxes = 0; // Reset safe box count
+            prizeWon = ""; // Reset prize won
+
+            // Clear existing boxes
+            gameContainer.innerHTML = '';
+
+            // Randomly generate bomb index for this round
+            bombIndices = [];
+            while (bombIndices.length < totalBombs) {
+                const randomIndex = Math.floor(Math.random() * totalBoxes);
+                if (!bombIndices.includes(randomIndex)) {
+                    bombIndices.push(randomIndex);
+                }
+            }
+
+            // Create the boxes
+            for (let i = 0; i < totalBoxes; i++) {
+                const box = document.createElement('div');
+                box.classList.add('box');
+                box.addEventListener('click', () => handleBoxClick(i, box));
+
+                gameContainer.appendChild(box);
+            }
+        }
+
+        // Handle a box click
+        function handleBoxClick(index, box) {
+            if (gameOverFlag) return; // Prevent actions if the game is over
+
+            if (bombIndices.includes(index)) {
+                // It's a bomb, trigger explosion effect
+                box.classList.add('explosion');
+                message.textContent = "BOOM! You hit a bomb! Game Over.";
+                gameOver();
+            } else {
+                // Safe box, show a coin image (or any other image)
+                box.style.backgroundColor = "#8bc34a"; // Change background color to indicate safe box
+                box.style.backgroundImage = 'url("assets/images/coin.jpg")'; // Path to your coin image
+                box.style.backgroundSize = 'contain'; // Make sure the coin image is contained in the box
+                box.style.backgroundRepeat = 'no-repeat'; // Prevent image from repeating
+                box.style.backgroundPosition = 'center'; // Center the image
+
+                clickedSafeBoxes++; // Increment the number of clicked safe boxes
+                message.textContent = `Safe! You have clicked ${clickedSafeBoxes} safe box${clickedSafeBoxes > 1 ? 'es' : ''}.`;
+
+                // Check if all safe boxes are clicked
+                if (clickedSafeBoxes === totalBoxes - totalBombs) {
+                    prizeWon = "500 points"; // Set the prize won
+                    message.textContent = "You won the game! You earned 500 points!";
+                    pointsMessage.classList.remove('hidden'); // Show the points message
+                    gameOver();
+                }
+
+                box.removeEventListener('click', handleBoxClick); // Disable further clicks on safe box
+            }
+        }
+
+        // Game over, show the reset button
+        function gameOver() {
+            gameOverFlag = true; // Set the game over flag to true
+            const boxes = document.querySelectorAll('.box');
+            boxes.forEach(box => box.removeEventListener('click', handleBoxClick)); // Disable all clicks
+
+            resetBtn.classList.remove('hidden'); // Show the play again button
+
+            // Show the share button if the player won
+            if (clickedSafeBoxes === totalBoxes - totalBombs) {
+                shareBtn.classList.remove('hidden'); // Show the share button
+            }
+        }
+
+        // Share on WhatsApp
+        function sharePrize() {
+            const messageToShare = `I won ${prizeWon} in the Bomb in a Box game! Share with 20 friends to claim your prize!`;
+            const url = `https://wa.me/?text=${encodeURIComponent(messageToShare)}`;
+            window.open(url, '_blank');
+        }
+
+        // Start the game when the page loads
+        startGame();
+    </script>
+
+</body>
+</html>
